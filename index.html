@@ -3,88 +3,158 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Tabuleiro do Consumo Consciente</title>
+    <title>Jogo de Tabuleiro - Trilha do Consumo Consciente</title>
     <style>
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background-color: #f0f2f5;
+            background: linear-gradient(180deg, #7ec855 0%, #b3e075 100%);
+            min-height: 100vh;
             display: flex;
             flex-direction: column;
             align-items: center;
             padding: 20px;
             margin: 0;
+            color: #2c3e50;
         }
-        h1 { color: #2c3e50; margin-bottom: 10px; }
-        .container {
+        h1 {
+            color: #fff;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+            margin-bottom: 5px;
+        }
+        .subtitle {
+            color: #f7fff7;
+            font-size: 16px;
+            margin-bottom: 25px;
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.2);
+        }
+        .game-container {
             display: flex;
-            gap: 40px;
-            max-width: 1000px;
+            gap: 30px;
+            max-width: 1100px;
             width: 100%;
             justify-content: center;
+            align-items: flex-start;
             flex-wrap: wrap;
         }
+        /* Painel Lateral */
         .controls {
             background: white;
-            padding: 20px;
-            border-radius: 12px;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            padding: 25px;
+            border-radius: 20px;
+            box-shadow: 0 10px 20px rgba(0,0,0,0.15);
             text-align: center;
-            min-width: 250px;
-            height: fit-content;
+            width: 260px;
+            box-sizing: border-box;
         }
         .btn {
-            background-color: #3498db;
+            background-color: #ff5964;
             color: white;
             border: none;
-            padding: 12px 24px;
-            font-size: 16px;
+            padding: 14px 28px;
+            font-size: 18px;
             font-weight: bold;
-            border-radius: 8px;
+            border-radius: 50px;
             cursor: pointer;
-            transition: background 0.2s;
+            box-shadow: 0 5px 0 #d9414c;
+            transition: all 0.1s ease;
+            width: 100%;
         }
-        .btn:hover { background-color: #2980b9; }
+        .btn:active {
+            transform: translateY(4px);
+            box-shadow: 0 1px 0 #d9414c;
+        }
+        .btn:disabled {
+            background-color: #bdc3c7;
+            box-shadow: 0 5px 0 #95a5a6;
+            cursor: not-allowed;
+        }
         .dice {
-            font-size: 48px;
+            font-size: 64px;
             margin: 15px 0;
+            user-select: none;
         }
-        .board {
-            display: grid;
-            grid-template-columns: repeat(5, 80px);
-            grid-template-rows: repeat(5, 80px);
-            gap: 8px;
-            background: #bdc3c7;
-            padding: 12px;
-            border-radius: 16px;
-            box-shadow: 0 8px 16px rgba(0,0,0,0.15);
+        /* Tabuleiro Estilo Imagem */
+        .board-wrapper {
+            background: rgba(255, 255, 255, 0.2);
+            padding: 30px;
+            border-radius: 30px;
+            backdrop-filter: blur(5px);
+            box-shadow: inset 0 0 20px rgba(255,255,255,0.4);
         }
-        .cell {
-            background: white;
-            border-radius: 8px;
+        .board-track {
             display: flex;
-            flex-direction: column;
+            flex-wrap: wrap;
+            max-width: 720px;
+            gap: 15px;
+            justify-content: center;
+            position: relative;
+        }
+
+        .space {
+            width: 75px;
+            height: 75px;
+            border-radius: 14px;
+            display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 12px;
+            font-size: 14px;
             font-weight: bold;
+            color: white;
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.4);
+            box-shadow: 0 5px 0 rgba(0,0,0,0.15), inset 0 -4px 0 rgba(0,0,0,0.2);
             position: relative;
-            color: #34495e;
-            box-shadow: inset 0 -3px 0 rgba(0,0,0,0.1);
+            box-sizing: border-box;
         }
-        .cell.start { background-color: #2ecc71; color: white; }
-        .cell.end { background-color: #e74c3c; color: white; }
-        .cell.quiz { background-color: #3498db; color: white; }
-        .cell.luck { background-color: #f1c40f; color: #2c3e50; }
+        /* Cores alternadas baseadas na imagem */
+        .c-pink { background-color: #e43f6f; }
+        .c-green { background-color: #3caea3; }
+        .c-blue { background-color: #20639b; }
+        .c-purple { background-color: #a77ca7; }
+        .c-orange { background-color: #f6d55c; color: #333; text-shadow: none; }
+        .c-yellow { background-color: #f68945; }
+
+        /* Casas especiais de início e fim circulares (Alvos) */
+        .space.start {
+            background: radial-gradient(circle, #7ec855 30%, #2c3e50 31%, #7ec855 50%, #2c3e50 51%, #7ec855 70%);
+            border-radius: 50%;
+            border: 4px solid white;
+            width: 85px;
+            height: 85px;
+        }
+        .space.end {
+            background: radial-gradient(circle, #e43f6f 30%, #2c3e50 31%, #e43f6f 50%, #2c3e50 51%, #e43f6f 70%);
+            border-radius: 50%;
+            border: 4px solid white;
+            width: 85px;
+            height: 85px;
+        }
+
+        /* Peão do Jogador */
         .player {
-            width: 24px;
-            height: 24px;
-            background-color: #e67e22;
-            border: 3px solid white;
+            width: 32px;
+            height: 32px;
+            background-color: #ffffff;
+            border: 4px solid #2c3e50;
             border-radius: 50%;
             position: absolute;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.3);
-            animate: bounce 0.5s infinite alternate;
+            z-index: 10;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.4);
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            transition: all 0.2s ease-in-out;
         }
+        .player::after {
+            content: '';
+            display: block;
+            width: 10px;
+            height: 10px;
+            background: #2c3e50;
+            border-radius: 50%;
+            margin: 7px auto;
+        }
+
+        /* Janela Modal de Pergunta */
         .modal {
             display: none;
             position: fixed;
@@ -93,67 +163,73 @@
             justify-content: center;
             align-items: center;
             z-index: 100;
+            backdrop-filter: blur(4px);
         }
         .modal-content {
             background: white;
-            padding: 30px;
-            border-radius: 16px;
-            max-width: 500px;
+            padding: 35px;
+            border-radius: 24px;
+            max-width: 550px;
             width: 90%;
             text-align: center;
-            box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+            box-shadow: 0 20px 40px rgba(0,0,0,0.3);
         }
-        .modal h2 { margin-top: 0; color: #2c3e50; }
-        .options-grid {
+        .modal h2 { margin-top: 0; color: #20639b; font-size: 24px; }
+        #question-text { font-size: 18px; margin-bottom: 25px; line-height: 1.5; font-weight: 500; }
+        .options-list {
             display: flex;
             flex-direction: column;
-            gap: 10px;
-            margin-top: 20px;
+            gap: 12px;
         }
         .opt-btn {
             background: #f8f9fa;
-            border: 2px solid #dee2e6;
-            padding: 12px;
-            border-radius: 8px;
+            border: 2px solid #e9ecef;
+            padding: 14px 20px;
+            border-radius: 12px;
             cursor: pointer;
             text-align: left;
-            font-size: 14px;
-            transition: all 0.2s;
+            font-size: 15px;
+            font-weight: 600;
+            color: #495057;
+            transition: all 0.2s ease;
         }
-        .opt-btn:hover { background: #e9ecef; border-color: #ced4da; }
-        #status { font-weight: bold; margin-top: 15px; color: #27ae60; }
+        .opt-btn:hover {
+            background: #e8f4fd;
+            border-color: #3caea3;
+            color: #20639b;
+        }
+        #status { font-weight: bold; margin-top: 15px; font-size: 16px; min-height: 40px; color: white; text-shadow: 1px 1px 2px rgba(0,0,0,0.3); }
     </style>
 </head>
 <body>
 
-    <h1>Tabuleiro do Consumo Consciente</h1>
-    <p>Gire o dado e responda às perguntas nas casas azuis para avançar!</p>
+    <h1>Trilha do Consumo Consciente</h1>
+    <div class="subtitle">Chegue até o final respondendo aos desafios práticos!</div>
 
-    <div class="container">
-        <!-- Tabuleiro -->
-        <div class="board" id="board"></div>
+    <div class="game-container">
+        <div class="board-wrapper">
+            <div class="board-track" id="board-track"></div>
+        </div>
 
-        <!-- Painel Lateral -->
         <div class="controls">
-            <h2>Sua Vez</h2>
+            <h2>Sua Jornada</h2>
             <div class="dice" id="dice-view">⚀</div>
             <button class="btn" id="roll-btn" onclick="rollDice()">Girar Dado</button>
-            <p id="status">Clique para começar!</p>
-            <p><strong>Pontos:</strong> <span id="score">0</span></p>
+            <p id="status" style="color: #2c3e50; text-shadow: none;">Clique no botão para rolar o dado!</p>
+            <hr style="border: 0; border-top: 1px solid #eee; margin: 20px 0;">
+            <p style="font-size: 18px; margin: 0;"><strong>Pontuação:</strong> <span id="score" style="color:#e43f6f; font-weight:bold;">0</span></p>
         </div>
     </div>
 
-    <!-- Janela de Perguntas -->
     <div class="modal" id="quiz-modal">
         <div class="modal-content">
-            <h2 id="modal-title">Pergunta de Consumo Consciente</h2>
-            <p id="question-text">Texto da pergunta aqui...</p>
-            <div class="options-grid" id="options-container"></div>
+            <h2>Desafio de Consumo!</h2>
+            <p id="question-text">Carregando pergunta...</p>
+            <div class="options-list" id="options-container"></div>
         </div>
     </div>
 
     <script>
-        // Banco de dados com as suas perguntas e alternativas
         const quizData = [
             { q: "O que significa consumo consciente?", o: ["Comprar tudo o que está em promoção.", "Consumir de forma responsável, considerando impactos financeiros, sociais e ambientais.", "Comprar apenas produtos importados.", "Evitar qualquer tipo de consumo."], a: 1 },
             { q: "Antes de fazer uma compra, uma atitude de consumo consciente é:", o: ["Comprar imediatamente para não perder a oportunidade.", "Perguntar aos amigos se eles gostaram do produto.", "Avaliar se o produto é realmente necessário.", "Comprar o item mais caro disponível."], a: 2 },
@@ -162,57 +238,54 @@
             { q: "Qual atitude ajuda a evitar compras impulsivas?", o: ["Comprar sempre que sentir vontade.", "Usar o limite máximo do cartão de crédito.", "Esperar um tempo antes de decidir pela compra.", "Ignorar o preço do produto."], a: 2 },
             { q: "Ao comparar preços antes de comprar um produto, você está:", o: ["Perdendo tempo.", "Praticando educação financeira.", "Aumentando seus gastos.", "Evitando economizar."], a: 1 },
             { q: "O que pode acontecer quando uma pessoa gasta mais do que ganha regularmente?", o: ["Acumula economias.", "Melhora sua situação financeira.", "Pode entrar em endividamento.", "Recebe recompensas do banco."], a: 2 },
-            { q: "Qual é uma vantagem de reutilizar objetos sempre que possível?", o: ["Aumentar o desperdício.", "Economizar dinheiro e reduzir impactos ambientais.", "Comprar mais produtos novos.", "Gastar mais recursos naturais."], a: 1 },
+            { q: "Qual é uma vantagem de reutilizar objetos sempre que possível?", o: ["Aumentar o desperdício.", "Economizar dinheiro e reduzir impactos ambientais.", "Comprar mais produtos novos.", "Gastando mais recursos naturais."], a: 1 },
             { q: "Uma propaganda influencia o consumo porque:", o: ["Pode despertar desejos de compra, mesmo sem necessidade real.", "Obriga as pessoas a comprar.", "Define o preço dos produtos.", "Substitui o planejamento financeiro."], a: 0 },
-            { q: "Se um estudante recebe R$ 100 por mês e decide guardar R$ 20, qual porcentagem da renda ele está economizando?", o: ["10%", "15%", "20%", "25%"], a: 2 }
+            { q: "Se um estudante recebe R$ 100 por mês e decide guardar R$ 20, qual porcentagem da renda ele está economizando?", o: ["10%", "15%", "20%", "25%"], a: 2 },
+            { q: "Qual dos 3R's da sustentabilidade foca em diminuir a quantidade de lixo gerada antes mesmo de comprar?", o: ["Reciclar.", "Reduzir.", "Reutilizar.", "Reparar."], a: 1 },
+            { q: "O que é a 'Obsolescência Programada'?", o: ["O ato de planejar compras com antecedência.", "Fabricar produtos feitos para durar pouco, forçando o consumidor a comprar novos.", "Uso de inteligência artificial em lojas.", "Venda de produtos de segunda mão."], a: 1 },
+            { q: "A Reserva de Emergência serve principalmente para:", o: ["Comprar pacotes de viagens inesperados de última hora.", "Garantir segurança financeira em imprevistos, como problemas de saúde.", "Investir na bolsa de valores arriscando tudo.", "Gastar em festas de fim de ano."], a: 1 },
+            { q: "Consumir produtos produzidos localmente por pequenos produtores ajuda a:", o: ["Encarecer o frete global.", "Fortalecer a economia local e reduzir a pegada de carbono do transporte.", "Prejudicar grandes marcas internacionais.", "Diminuir a variedade de comida saudável."], a: 1 },
+            { q: "Qual o melhor hábito para lidar com o uso do cartão de crédito?", o: ["Pagar apenas o valor mínimo da fatura todos os meses.", "Achar que o limite é um dinheiro extra da sua renda.", "Controlar os gastos e pagar o valor total da fatura na data certa.", "Emprestar para qualquer conhecido usar."], a: 2 }
         ];
 
-        // Mapeamento do caminho do circuito (estilo ludo/trilha em espiral/periferia)
-        const pathCoords = [
-            {r:0, c:0, type: 'start', label: 'Início'}, {r:0, c:1, type: 'quiz'}, {r:0, c:2, type: 'luck', label: 'Sorte'}, {r:0, c:3, type: 'quiz'}, {r:0, c:4, type: 'quiz'},
-            {r:1, c:4, type: 'luck', label: 'Azar'}, {r:2, c:4, type: 'quiz'}, {r:3, c:4, type: 'quiz'}, {r:4, c:4, type: 'luck', label: 'Sorte'},
-            {r:4, c:3, type: 'quiz'}, {r:4, c:2, type: 'quiz'}, {r:4, c:1, type: 'luck', label: 'Azar'}, {r:4, c:0, type: 'quiz'},
-            {r:3, c:0, type: 'quiz'}, {r:2, c:0, type: 'luck', label: 'Sorte'}, {r:1, c:0, type: 'quiz'},
-            {r:1, c:1, type: 'quiz'}, {r:1, c:2, type: 'quiz'}, {r:1, c:3, type: 'luck', label: 'Azar'},
-            {r:2, c:3, type: 'quiz'}, {r:3, c:3, type: 'quiz'}, {r:3, c:2, type: 'quiz'}, {r:3, c:1, type: 'quiz'},
-            {r:2, c:1, type: 'quiz'}, {r:2, c:2, type: 'end', label: 'Fim'}
-        ];
-
-        const diceFaces = ['⚀', '⚁', '⚂', '⚃', '⚄', '⚅'];
+        const colors = ['c-pink', 'c-green', 'c-blue', 'c-purple', 'c-orange', 'c-yellow'];
+        const totalSpaces = 25;
         let playerPosition = 0;
         let score = 0;
-        let currentQuizIndex = 0;
+        const diceFaces = ['⚀', '⚁', '⚂', '⚃', '⚄', '⚅'];
 
-        // Desenhar tabuleiro
-        const boardEl = document.getElementById('board');
-        function createBoard() {
-            // Cria matriz vazia 5x5
-            const cellsMatrix = Array(5).fill(null).map(() => Array(5).fill(null));
-            
-            pathCoords.forEach((node, index) => {
-                const cell = document.createElement('div');
-                cell.className = `cell ${node.type}`;
-                cell.innerHTML = node.label || `Casa ${index}`;
-                cell.style.gridRowStart = node.r + 1;
-                cell.style.gridColumnStart = node.c + 1;
-                cell.setAttribute('id', `path-${index}`);
-                boardEl.appendChild(cell);
-            });
-            
-            updatePlayerUi();
+        function buildBoard() {
+            const trackEl = document.getElementById('board-track');
+            trackEl.innerHTML = '';
+
+            for (let i = 0; i < totalSpaces; i++) {
+                const space = document.createElement('div');
+                if (i === 0) {
+                    space.className = 'space start';
+                    space.innerText = 'Início';
+                } else if (i === totalSpaces - 1) {
+                    space.className = 'space end';
+                    space.innerText = 'Fim';
+                } else {
+                    const colorClass = colors[i % colors.length];
+                    space.className = `space ${colorClass}`;
+                    space.innerText = i;
+                }
+                space.setAttribute('id', `space-${i}`);
+                trackEl.appendChild(space);
+            }
+            placePlayer();
         }
 
-        function updatePlayerUi() {
-            // Remove peão antigo se houver
+        function placePlayer() {
             const oldPlayer = document.querySelector('.player');
             if (oldPlayer) oldPlayer.remove();
 
-            // Adiciona peão na casa atual
-            const currentCell = document.getElementById(`path-${playerPosition}`);
-            if (currentCell) {
+            const currentSpace = document.getElementById(`space-${playerPosition}`);
+            if (currentSpace) {
                 const playerMarker = document.createElement('div');
                 playerMarker.className = 'player';
-                currentCell.appendChild(playerMarker);
+                currentSpace.appendChild(playerMarker);
             }
             document.getElementById('score').innerText = score;
         }
@@ -221,65 +294,57 @@
             document.getElementById('roll-btn').disabled = true;
             let counter = 0;
             
-            // Efeito visual de girar dado
             const interval = setInterval(() => {
                 const rand = Math.floor(Math.random() * 6);
                 document.getElementById('dice-view').innerText = diceFaces[rand];
                 counter++;
-                if (counter > 8) {
+                
+                if (counter > 10) {
                     clearInterval(interval);
                     const steps = Math.floor(Math.random() * 6) + 1;
                     document.getElementById('dice-view').innerText = diceFaces[steps - 1];
-                    movePlayer(steps);
+                    
+                    document.getElementById('status').innerText = `O dado marcou: ${steps}! Movendo o peão...`;
+                    // Inicia a caminhada passo a passo
+                    moveStepByStep(steps);
                 }
-            }, 100);
+            }, 80);
         }
 
-        function movePlayer(steps) {
-            playerPosition += steps;
-            if (playerPosition >= pathCoords.length - 1) {
-                playerPosition = pathCoords.length - 1;
-                updatePlayerUi();
-                document.getElementById('status').innerText = "Parabéns! Você chegou ao fim do consumo consciente!";
-                alert("Jogo Concluído! Você dominou a educação financeira.");
+        // FUNÇÃO ATUALIZADA: Move o bonequinho de 1 em 1 casa lentamente
+        function moveStepByStep(stepsLeft) {
+            if (stepsLeft <= 0 || playerPosition >= totalSpaces - 1) {
+                // Chegou ao destino final do movimento
+                if (playerPosition >= totalSpaces - 1) {
+                    playerPosition = totalSpaces - 1;
+                    placePlayer();
+                    document.getElementById('status').innerText = "Parabéns! Você concluiu a trilha do consumo consciente!";
+                    alert("Você completou o circuito! Parabéns por ser um consumidor consciente.");
+                } else {
+                    // Abre a pergunta quando parar na casa certa
+                    setTimeout(() => { openQuiz(); }, 400);
+                }
                 return;
             }
 
-            updatePlayerUi();
-            const currentTile = pathCoords[playerPosition];
-            
-            setTimeout(() => {
-                if (currentTile.type === 'quiz') {
-                    openQuiz();
-                } else if (currentTile.type === 'luck') {
-                    handleLuckTile(currentTile.label);
-                } else {
-                    document.getElementById('status').innerText = "Você caiu em uma casa segura.";
-                    document.getElementById('roll-btn').disabled = false;
-                }
-            }, 600);
-        }
+            // Avança uma casa
+            playerPosition++;
+            placePlayer();
 
-        function handleLuckTile(type) {
-            const btn = document.getElementById('roll-btn');
-            if (type === 'Sorte') {
-                score += 10;
-                document.getElementById('status').innerText = "Sorte! Você poupou dinheiro. (+10 pontos)";
-            } else {
-                score = Math.max(0, score - 10);
-                document.getElementById('status').innerText = "Azar! Compra por impulso detected. (-10 pontos)";
-            }
-            btn.disabled = false;
-            updatePlayerUi();
+            // Espera 250 milissegundos antes de ir para a próxima casa
+            setTimeout(() => {
+                moveStepByStep(stepsLeft - 1);
+            }, 250);
         }
 
         function openQuiz() {
-            currentQuizIndex = Math.floor(Math.random() * quizData.length);
-            const quiz = quizData[currentQuizIndex];
+            const randomIndex = Math.floor(Math.random() * quizData.length);
+            const quiz = quizData[randomIndex];
             
             document.getElementById('question-text').innerText = quiz.q;
             const container = document.getElementById('options-container');
             container.innerHTML = '';
+            container.setAttribute('data-correct', quiz.a);
 
             quiz.o.forEach((option, idx) => {
                 const button = document.createElement('button');
@@ -294,25 +359,23 @@
 
         function checkAnswer(selectedIndex) {
             document.getElementById('quiz-modal').style.display = 'none';
-            const quiz = quizData[currentQuizIndex];
+            const container = document.getElementById('options-container');
+            const correctAnswerIndex = parseInt(container.getAttribute('data-correct'), 10);
             const statusEl = document.getElementById('status');
 
-            if (selectedIndex === quiz.a) {
-                score += 20;
-                statusEl.innerText = "Acertou! Ótima escolha financeira. (+20 pontos)";
-                statusEl.style.color = '#27ae60';
+            if (selectedIndex === correctAnswerIndex) {
+                score += 15;
+                statusEl.innerText = "Acertou! Excelente hábito de consumo! (+15 pontos)";
             } else {
                 score = Math.max(0, score - 5);
-                statusEl.innerText = "Ops! Resposta errada. Reavalie seus hábitos. (-5 pontos)";
-                statusEl.style.color = '#c0392b';
+                statusEl.innerText = "Ops! Cuidado com o desperdício ou gastos excessivos. (-5 pontos)";
             }
 
             document.getElementById('roll-btn').disabled = false;
-            updatePlayerUi();
+            placePlayer();
         }
 
-        // Inicializa o tabuleiro ao carregar a página
-        createBoard();
+        buildBoard();
     </script>
 </body>
 </html>
